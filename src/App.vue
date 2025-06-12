@@ -19,6 +19,7 @@ import { ElConfigProvider } from 'element-plus'
 
 html, body, #app {
   height: 100%;
+  width: 100%;
   margin: 0;
   padding: 0;
   overflow: hidden; /* Prevent body scrolling if layout is full height */

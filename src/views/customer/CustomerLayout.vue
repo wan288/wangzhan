@@ -4,6 +4,7 @@
     
     <!-- Main Content -->
     <main class="main-content">
+      <MerchantInfo v-if="showMerchantInfo" />
       <router-view v-slot="{ Component }">
         <transition name="fade" mode="out-in">
           <component :is="Component" />
@@ -72,7 +73,17 @@
 
 <script setup>
 import CustomerNav from '@/components/customer/CustomerNav.vue'
+import MerchantInfo from '@/components/MerchantInfo.vue'
 import { Location, Phone, Message, Platform, ChatDotRound, Share } from '@element-plus/icons-vue'
+import { computed } from 'vue'
+import { useRoute } from 'vue-router'
+
+const route = useRoute()
+
+// 在菜单页面显示商家信息
+const showMerchantInfo = computed(() => {
+  return route.path === '/menu'
+})
 </script>
 
 <style scoped>
@@ -80,6 +91,7 @@ import { Location, Phone, Message, Platform, ChatDotRound, Share } from '@elemen
   min-height: 100vh;
   display: flex;
   flex-direction: column;
+  background-color: var(--el-bg-color-page);
 }
 
 .main-content {

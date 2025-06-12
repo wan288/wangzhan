@@ -3,14 +3,15 @@
     <div class="container">
       <h1 class="page-title">个人资料</h1>
 
-      <el-card class="profile-card">
+      <el-card class="profile-card" shadow="hover">
         <el-tabs v-model="activeTab" class="profile-tabs">
           <el-tab-pane label="基本信息" name="info">
             <el-form
               :model="profileForm"
-              label-width="100px"
+              label-width="80px"
               class="profile-form"
               v-loading="userStore.loading"
+              label-position="left"
             >
               <el-form-item label="头像">
                 <el-upload
@@ -27,16 +28,16 @@
                 </el-upload>
               </el-form-item>
               <el-form-item label="用户名">
-                <el-input v-model="profileForm.username" />
+                <el-input v-model="profileForm.username" placeholder="请输入用户名" />
               </el-form-item>
               <el-form-item label="邮箱">
-                <el-input v-model="profileForm.email" disabled />
+                <el-input v-model="profileForm.email" disabled placeholder="用户邮箱" />
               </el-form-item>
               <el-form-item label="注册日期">
-                <el-input :value="new Date(profileForm.createdAt).toLocaleDateString()" disabled />
+                <el-input :value="new Date(profileForm.createdAt).toLocaleDateString()" disabled placeholder="注册日期" />
               </el-form-item>
               <el-form-item>
-                <el-button type="primary" @click="updateProfile" :loading="userStore.loading">
+                <el-button type="primary" @click="updateProfile" :loading="userStore.loading" size="large">
                   更新资料
                 </el-button>
               </el-form-item>
@@ -46,21 +47,22 @@
           <el-tab-pane label="修改密码" name="password">
             <el-form
               :model="passwordForm"
-              label-width="100px"
+              label-width="80px"
               class="password-form"
               v-loading="userStore.loading"
+              label-position="left"
             >
               <el-form-item label="旧密码">
-                <el-input v-model="passwordForm.oldPassword" type="password" show-password />
+                <el-input v-model="passwordForm.oldPassword" type="password" show-password placeholder="请输入旧密码" />
               </el-form-item>
               <el-form-item label="新密码">
-                <el-input v-model="passwordForm.newPassword" type="password" show-password />
+                <el-input v-model="passwordForm.newPassword" type="password" show-password placeholder="请输入新密码" />
               </el-form-item>
               <el-form-item label="确认新密码">
-                <el-input v-model="passwordForm.confirmPassword" type="password" show-password />
+                <el-input v-model="passwordForm.confirmPassword" type="password" show-password placeholder="请确认新密码" />
               </el-form-item>
               <el-form-item>
-                <el-button type="primary" @click="changePassword" :loading="userStore.loading">
+                <el-button type="primary" @click="changePassword" :loading="userStore.loading" size="large">
                   修改密码
                 </el-button>
               </el-form-item>
@@ -193,60 +195,143 @@ onMounted(() => {
 
 <style scoped>
 .profile-page {
-  padding: 2rem 0;
+  padding: 2rem;
+  max-width: 900px;
+  margin: 0 auto;
 }
 
 .page-title {
-  font-size: 2rem;
-  color: var(--el-color-primary);
-  margin-bottom: 2rem;
+  font-size: 2.5rem;
+  color: var(--el-text-color-primary);
   text-align: center;
+  margin-bottom: 2.5rem;
+  position: relative;
+  padding-bottom: 0.5rem;
+}
+
+.page-title::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100px;
+  height: 4px;
+  background-color: var(--kfc-red);
+  border-radius: 2px;
 }
 
 .profile-card {
-  max-width: 800px;
-  margin: 0 auto;
-  border-radius: 8px;
-  box-shadow: var(--el-box-shadow-light);
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  transition: all 0.3s ease;
+}
+
+.profile-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+}
+
+.profile-tabs .el-tabs__header {
+  margin-bottom: 1.5rem;
+}
+
+.profile-tabs .el-tabs__item {
+  font-size: 1.1rem;
+  font-weight: bold;
+  color: var(--el-text-color-regular);
+}
+
+.profile-tabs .el-tabs__item.is-active {
+  color: var(--kfc-red);
+}
+
+.profile-tabs .el-tabs__active-bar {
+  background-color: var(--kfc-red);
 }
 
 .profile-tabs .el-tabs__content {
-  padding: 2rem;
-}
-
-.avatar-uploader .avatar {
-  width: 100px;
-  height: 100px;
-  display: block;
-  border-radius: 50%;
-  object-fit: cover;
-}
-
-.avatar-uploader .el-upload {
-  border: 1px dashed var(--el-border-color);
-  border-radius: 50%;
-  cursor: pointer;
-  position: relative;
-  overflow: hidden;
-  transition: var(--el-transition-duration-fast);
-  width: 100px;
-  height: 100px;
-}
-
-.avatar-uploader .el-upload:hover {
-  border-color: var(--el-color-primary);
-}
-
-.el-icon.avatar-uploader-icon {
-  font-size: 28px;
-  color: #8c9399;
-  width: 100px;
-  height: 100px;
-  text-align: center;
+  padding: 1.5rem 0;
 }
 
 .profile-form, .password-form {
   max-width: 500px;
   margin: 0 auto;
+  padding: 0 1rem;
+}
+
+.profile-form .el-form-item,
+.password-form .el-form-item {
+  margin-bottom: 1.5rem;
+}
+
+.profile-form .el-input.is-disabled .el-input__inner {
+  color: var(--el-text-color-regular);
+  -webkit-text-fill-color: var(--el-text-color-regular);
+  background-color: var(--el-fill-color-light);
+}
+
+.avatar-uploader .avatar {
+  width: 120px; /* Larger avatar */
+  height: 120px; /* Larger avatar */
+  display: block;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 4px solid var(--el-border-color-lighter);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+}
+
+.avatar-uploader .el-upload {
+  border: 2px dashed var(--el-border-color);
+  border-radius: 50%;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  transition: var(--el-transition-duration-fast);
+  width: 120px; /* Match avatar size */
+  height: 120px; /* Match avatar size */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.avatar-uploader .el-upload:hover {
+  border-color: var(--kfc-red);
+  background-color: var(--el-color-primary-light-9); /* Light background on hover */
+}
+
+.el-icon.avatar-uploader-icon {
+  font-size: 32px; /* Larger icon */
+  color: var(--el-text-color-secondary);
+  width: 100%;
+  height: 100%;
+  text-align: center;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.el-button--primary {
+  background-color: var(--kfc-red);
+  border-color: var(--kfc-red);
+}
+
+.el-button--primary:hover {
+  background-color: #e03f2a;
+  border-color: #e03f2a;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .profile-page {
+    padding: 1rem;
+  }
+  .page-title {
+    font-size: 2rem;
+    margin-bottom: 2rem;
+  }
+  .profile-form, .password-form {
+    padding: 0;
+  }
 }
 </style> 

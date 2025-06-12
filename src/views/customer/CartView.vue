@@ -1,7 +1,7 @@
 <template>
   <div class="cart-page">
     <div class="container">
-      <h1 class="page-title">购物车</h1>
+      <h1 class="page-title">我的购物车</h1>
 
       <div class="cart-content" v-if="cartItems.length > 0">
         <!-- 购物车列表 -->
@@ -27,7 +27,10 @@
               <div class="item-info">
                 <h3 class="item-name">{{ item.name }}</h3>
                 <p class="item-description">{{ item.description }}</p>
-                <div class="item-price">¥{{ item.price }}</div>
+                <div class="item-price">
+                  <span>单价:</span>
+                  <span>¥{{ item.price.toFixed(2) }}</span>
+                </div>
               </div>
 
               <!-- 数量控制 -->
@@ -36,14 +39,15 @@
                   v-model="item.quantity"
                   :min="1"
                   :max="99"
-                  size="small"
+                  size="default"
                   @change="(value) => updateQuantity(item._id, value)"
                 />
               </div>
 
               <!-- 小计 -->
               <div class="item-subtotal">
-                ¥{{ (item.price * item.quantity).toFixed(2) }}
+                <span class="label">小计:</span>
+                <span class="value">¥{{ (item.price * item.quantity).toFixed(2) }}</span>
               </div>
 
               <!-- 删除按钮 -->
@@ -61,20 +65,32 @@
 
         <!-- 结算栏 -->
         <div class="cart-summary">
-          <el-card>
+          <el-card shadow="hover">
             <div class="summary-content">
               <div class="summary-info">
-                <div class="total-items">
-                  共 {{ totalItems }} 件商品
+                <div class="summary-line">
+                  <span class="label">商品数量:</span>
+                  <span class="value">{{ totalItems }} 件</span>
                 </div>
-                <div class="total-price">
-                  总计: <span class="price">¥{{ totalPrice.toFixed(2) }}</span>
+                <div class="summary-line">
+                  <span class="label">商品总价:</span>
+                  <span class="value">¥{{ totalPrice.toFixed(2) }}</span>
+                </div>
+                <div class="summary-line delivery-fee">
+                  <span class="label">配送费:</span>
+                  <span class="value">¥{{ deliveryFee.toFixed(2) }}</span>
+                </div>
+                <el-divider />
+                <div class="summary-line total">
+                  <span class="label">应付总额:</span>
+                  <span class="price">¥{{ (totalPrice + deliveryFee).toFixed(2) }}</span>
                 </div>
               </div>
 
               <div class="summary-actions">
-                <el-button @click="clearCart">清空购物车</el-button>
-                <el-button type="primary" @click="checkout" :loading="checkingOut">
+                <el-button @click="clearCart" size="large">清空购物车</el-button>
+                <el-button type="primary" @click="checkout" :loading="checkingOut" size="large">
+                  <el-icon><PriceTag /></el-icon>
                   去结算
                 </el-button>
               </div>
@@ -86,7 +102,7 @@
       <!-- 空购物车状态 -->
       <el-empty
         v-else
-        description="购物车是空的"
+        description="购物车是空的，快去挑选美食吧！"
       >
         <el-button type="primary" @click="$router.push('/menu')">
           去点餐
@@ -99,47 +115,59 @@
       v-model="checkoutDialogVisible"
       title="确认订单"
       width="500px"
+      class="checkout-dialog"
+      center
     >
       <div class="checkout-form">
         <!-- 配送信息 -->
-        <el-form :model="deliveryInfo" label-width="100px">
-          <el-form-item label="收货人">
+        <el-form :model="deliveryInfo" label-width="80px" label-position="left">
+          <el-form-item label="收货人" prop="name">
             <el-input v-model="deliveryInfo.name" placeholder="请输入收货人姓名" />
           </el-form-item>
           
-          <el-form-item label="联系电话">
+          <el-form-item label="联系电话" prop="phone">
             <el-input v-model="deliveryInfo.phone" placeholder="请输入联系电话" />
           </el-form-item>
           
-          <el-form-item label="配送地址">
+          <el-form-item label="配送地址" prop="address">
             <el-input
               v-model="deliveryInfo.address"
               type="textarea"
+              :rows="3"
               placeholder="请输入详细配送地址"
             />
           </el-form-item>
           
-          <el-form-item label="备注">
+          <el-form-item label="备注" prop="notes">
             <el-input
               v-model="deliveryInfo.notes"
               type="textarea"
+              :rows="2"
               placeholder="请输入订单备注（选填）"
             />
           </el-form-item>
         </el-form>
 
         <!-- 订单摘要 -->
-        <div class="order-summary">
-          <h3>订单摘要</h3>
-          <div class="summary-item">
-            <span>商品总数:</span>
-            <span>{{ totalItems }} 件</span>
+        <div class="order-summary-dialog">
+          <h3>订单详情</h3>
+          <div class="summary-list">
+            <div class="summary-item-dialog" v-for="item in cartItems" :key="item._id">
+              <span>{{ item.name }} x {{ item.quantity }}</span>
+              <span>¥{{ (item.price * item.quantity).toFixed(2) }}</span>
+            </div>
           </div>
-          <div class="summary-item">
+          <el-divider border-style="dashed"/>
+          <div class="summary-line">
+            <span>商品总价:</span>
+            <span>¥{{ totalPrice.toFixed(2) }}</span>
+          </div>
+          <div class="summary-line">
             <span>配送费:</span>
             <span>¥{{ deliveryFee.toFixed(2) }}</span>
           </div>
-          <div class="summary-item total">
+          <el-divider />
+          <div class="summary-line total">
             <span>应付总额:</span>
             <span class="price">¥{{ (totalPrice + deliveryFee).toFixed(2) }}</span>
           </div>
@@ -148,11 +176,12 @@
 
       <template #footer>
         <div class="dialog-footer">
-          <el-button @click="checkoutDialogVisible = false">取消</el-button>
+          <el-button @click="checkoutDialogVisible = false" size="large">取消</el-button>
           <el-button
             type="primary"
             @click="submitOrder"
             :loading="submitting"
+            size="large"
           >
             提交订单
           </el-button>
@@ -166,9 +195,9 @@
 import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { useUserStore } from '@/stores/user'
-import { Delete, Picture } from '@element-plus/icons-vue'
+import { Delete, Picture, PriceTag } from '@element-plus/icons-vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
-import axios from 'axios' // Import axios
+import axios from 'axios'
 
 const router = useRouter()
 const userStore = useUserStore()
@@ -293,81 +322,123 @@ async function submitOrder() {
 
 <style scoped>
 .cart-page {
-  padding: 2rem 0;
+  padding: 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
 }
 
 .page-title {
-  font-size: 2rem;
-  color: var(--el-color-primary);
-  margin-bottom: 2rem;
+  font-size: 2.5rem;
+  color: var(--el-text-color-primary);
   text-align: center;
+  margin-bottom: 2.5rem;
+  position: relative;
+  padding-bottom: 0.5rem;
+}
+
+.page-title::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100px;
+  height: 4px;
+  background-color: var(--kfc-red);
+  border-radius: 2px;
 }
 
 .cart-content {
   display: flex;
   gap: 2rem;
-  align-items: flex-start; /* Aligns content to the top */
 }
 
 .cart-items {
   flex: 3;
   display: flex;
   flex-direction: column;
-  gap: 1rem;
+  gap: 1.5rem;
 }
 
 .cart-item {
-  border-radius: 8px;
-  box-shadow: var(--el-box-shadow-light);
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  transition: all 0.3s ease;
+}
+
+.cart-item:hover {
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+  transform: translateY(-2px);
 }
 
 .item-content {
   display: flex;
   align-items: center;
-  gap: 1rem;
   padding: 1rem;
+  gap: 1rem;
 }
 
 .item-image {
-  width: 90px;
-  height: 90px;
-  border-radius: 4px;
-  overflow: hidden;
+  width: 100px;
+  height: 100px;
   flex-shrink: 0;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.el-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 
 .image-placeholder {
-  width: 100%;
-  height: 100%;
   display: flex;
   justify-content: center;
   align-items: center;
-  background-color: #f0f0f0;
-  color: #ccc;
-  font-size: 1.8rem;
+  width: 100%;
+  height: 100%;
+  background-color: var(--el-fill-color-light);
+  color: var(--el-text-color-secondary);
+  font-size: 2rem;
 }
 
 .item-info {
   flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 }
 
 .item-name {
-  font-size: 1.1rem;
+  font-size: 1.2rem;
   font-weight: bold;
-  color: var(--el-color-primary);
+  color: var(--el-text-color-primary);
   margin-bottom: 0.3rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .item-description {
-  font-size: 0.85rem;
-  color: #999;
+  font-size: 0.9rem;
+  color: var(--el-text-color-regular);
+  line-height: 1.4;
+  max-height: 2.8em; /* Limit to 2 lines */
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
   margin-bottom: 0.5rem;
 }
 
 .item-price {
   font-size: 1rem;
-  font-weight: bold;
-  color: var(--kfc-red);
+  color: var(--el-text-color-secondary);
+  display: flex;
+  gap: 5px;
 }
 
 .item-quantity {
@@ -375,83 +446,217 @@ async function submitOrder() {
 }
 
 .item-subtotal {
-  width: 100px;
-  text-align: right;
+  font-size: 1.1rem;
   font-weight: bold;
   color: var(--kfc-red);
+  margin-left: 1rem;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.item-subtotal .label {
+  font-weight: normal;
+  color: var(--el-text-color-regular);
+  font-size: 0.9rem;
 }
 
 .item-actions {
+  margin-left: 1rem;
   flex-shrink: 0;
 }
 
 .cart-summary {
   flex: 1;
-  position: sticky;
-  top: 2rem; /* Adjust as needed for sticky positioning */
 }
 
 .summary-content {
   padding: 1.5rem;
 }
 
-.summary-info > div {
+.summary-info .summary-line {
   display: flex;
   justify-content: space-between;
-  margin-bottom: 0.8rem;
+  margin-bottom: 1rem;
+  font-size: 1rem;
 }
 
-.summary-info .total-price .price {
-  font-size: 1.8rem;
+.summary-info .summary-line .label {
+  color: var(--el-text-color-regular);
+}
+
+.summary-info .summary-line .value {
+  font-weight: bold;
+  color: var(--el-text-color-primary);
+}
+
+.summary-info .summary-line.total {
+  font-size: 1.5rem;
   font-weight: bold;
   color: var(--kfc-red);
 }
 
-.summary-item.total {
-  border-top: 1px solid #eee;
-  padding-top: 0.8rem;
-  font-size: 1.1rem;
-  font-weight: bold;
+.summary-info .summary-line.total .price {
+  font-size: 1.8rem;
+  color: var(--kfc-red);
+}
+
+.summary-info .summary-line.delivery-fee {
+  color: var(--el-text-color-secondary);
 }
 
 .summary-actions {
   display: flex;
-  flex-direction: column;
-  gap: 0.8rem;
+  gap: 1rem;
   margin-top: 1.5rem;
 }
 
+.summary-actions .el-button {
+  flex: 1;
+}
+
+.summary-actions .el-button.el-button--primary {
+  background-color: var(--kfc-red);
+  border-color: var(--kfc-red);
+}
+
+.summary-actions .el-button.el-button--primary:hover {
+  background-color: #e03f2a;
+  border-color: #e03f2a;
+}
+
+/* Empty cart state */
 .el-empty {
-  margin-top: 5rem;
+  margin-top: 3rem;
+}
+
+/* Checkout Dialog */
+.checkout-dialog .el-dialog__header {
+  border-bottom: 1px solid var(--el-border-color-lighter);
+  padding-bottom: 1rem;
+  margin-bottom: 1rem;
+}
+
+.checkout-dialog .el-dialog__title {
+  font-size: 1.8rem;
+  font-weight: bold;
+  color: var(--el-text-color-primary);
 }
 
 .checkout-form {
-  padding: 1rem 0;
+  padding: 0 1rem;
 }
 
-.order-summary {
-  margin-top: 2rem;
-  padding-top: 1.5rem;
-  border-top: 1px dashed #eee;
+.order-summary-dialog {
+  border: 1px solid var(--el-border-color-lighter);
+  border-radius: 8px;
+  padding: 1rem;
+  margin-top: 1.5rem;
+  background-color: var(--el-fill-color-light);
 }
 
-.order-summary h3 {
+.order-summary-dialog h3 {
+  font-size: 1.3rem;
+  color: var(--el-text-color-primary);
   margin-bottom: 1rem;
-  color: var(--el-color-primary);
+  text-align: center;
 }
 
-.order-summary .summary-item {
+.summary-list {
+  max-height: 150px;
+  overflow-y: auto;
+  margin-bottom: 1rem;
+}
+
+.summary-item-dialog {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 0.5rem;
+  font-size: 0.95rem;
+  color: var(--el-text-color-regular);
+}
+
+.summary-line {
   display: flex;
   justify-content: space-between;
   margin-bottom: 0.5rem;
 }
 
-.order-summary .summary-item.total .price {
+.summary-line span:first-child {
+  color: var(--el-text-color-regular);
+}
+
+.summary-line span:last-child {
+  font-weight: bold;
+  color: var(--el-text-color-primary);
+}
+
+.summary-line.total {
+  font-size: 1.2rem;
+  font-weight: bold;
+}
+
+.summary-line.total .price {
   font-size: 1.5rem;
   color: var(--kfc-red);
 }
 
 .dialog-footer {
-  text-align: right;
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--el-border-color-lighter);
+}
+
+/* Responsive */
+@media (max-width: 992px) {
+  .cart-content {
+    flex-direction: column;
+  }
+  .cart-summary {
+    flex: none;
+    width: 100%;
+  }
+}
+
+@media (max-width: 768px) {
+  .cart-page {
+    padding: 1rem;
+  }
+  .page-title {
+    font-size: 2rem;
+    margin-bottom: 2rem;
+  }
+  .item-content {
+    flex-wrap: wrap;
+    justify-content: center;
+    text-align: center;
+  }
+  .item-image {
+    width: 80px;
+    height: 80px;
+  }
+  .item-info {
+    align-items: center;
+  }
+  .item-price {
+    width: 100%;
+    justify-content: center;
+  }
+  .item-quantity,
+  .item-subtotal,
+  .item-actions {
+    margin-left: 0;
+    margin-top: 1rem;
+  }
+  .item-subtotal {
+    width: 100%;
+    justify-content: center;
+  }
+  .cart-summary .summary-actions {
+    flex-direction: column;
+  }
 }
 </style> 

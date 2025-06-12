@@ -207,8 +207,30 @@ export const useUserStore = defineStore('user', () => {
           deserialize: (value) => value, // Retrieve as is (string)
         },
       },
-      'userInfo',
-      'cart',
+      {
+        key: 'userInfo',
+        storage: localStorage,
+        serializer: {
+          serialize: (value) => JSON.stringify(value),
+          deserialize: (value) => safeParseJSON('userInfo', value) // Reuse safeParseJSON for userInfo
+        }
+      },
+      {
+        key: 'cart',
+        storage: localStorage,
+        serializer: {
+          serialize: (value) => JSON.stringify(value),
+          deserialize: (value) => {
+            try {
+              const parsed = JSON.parse(value);
+              return Array.isArray(parsed) ? parsed : [];
+            } catch (e) {
+              console.error(`Error deserializing cart from localStorage:`, e);
+              return [];
+            }
+          },
+        },
+      },
     ]
   }
 }) 

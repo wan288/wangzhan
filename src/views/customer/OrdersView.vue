@@ -26,11 +26,13 @@
         </el-tabs>
 
         <div class="order-list">
-          <el-card v-for="order in filteredOrders" :key="order._id" class="order-card">
+          <el-card v-for="order in filteredOrders" :key="order._id" class="order-card" shadow="hover">
             <template #header>
               <div class="order-header">
                 <span class="order-id">订单号: {{ order._id }}</span>
-                <span :class="['order-status', order.status]">{{ orderStatusMap[order.status] }}</span>
+                <el-tag :type="orderStatusTagType(order.status)" size="large" class="order-status-tag">
+                  {{ orderStatusMap[order.status] }}
+                </el-tag>
               </div>
             </template>
 
@@ -46,20 +48,49 @@
                 <div class="item-details">
                   <span class="item-name">{{ item.name }}</span>
                   <span class="item-quantity">x{{ item.quantity }}</span>
-                  <span class="item-price">¥{{ item.price }}</span>
+                  <span class="item-price">¥{{ item.price.toFixed(2) }}</span>
                 </div>
               </div>
             </div>
-
+            <el-divider class="order-divider"/>
             <div class="order-footer">
               <div class="order-total">
-                总计: <span class="price">¥{{ order.totalAmount.toFixed(2) }}</span>
+                <span class="label">订单总额:</span>
+                <span class="price">¥{{ order.totalAmount.toFixed(2) }}</span>
               </div>
               <div class="order-actions">
-                <el-button v-if="order.status === 'pending'" type="primary" size="small">立即支付</el-button>
-                <el-button v-if="order.status === 'completed'" size="small">评价</el-button>
-                <el-button v-if="order.status === 'pending'" type="danger" size="small" plain @click="cancelOrder(order._id)">取消订单</el-button>
-                <el-button size="small" @click="viewOrderDetails(order._id)">查看详情</el-button>
+                <el-button
+                  v-if="order.status === 'pending'"
+                  type="primary"
+                  size="default"
+                  @click="payOrder(order._id)"
+                >
+                  立即支付
+                </el-button>
+                <el-button
+                  v-if="order.status === 'completed'"
+                  size="default"
+                  @click="reviewOrder(order._id)"
+                >
+                  评价
+                </el-button>
+                <el-button
+                  v-if="['pending', 'processing'].includes(order.status)"
+                  type="danger"
+                  size="default"
+                  plain
+                  @click="cancelOrder(order._id)"
+                >
+                  取消订单
+                </el-button>
+                <el-button
+                  size="default"
+                  @click="viewOrderDetails(order._id)"
+                  :type="order.status === 'completed' ? 'primary' : 'default'"
+                  plain
+                >
+                  查看详情
+                </el-button>
               </div>
             </div>
           </el-card>
@@ -67,7 +98,7 @@
       </template>
 
       <template v-else>
-        <el-empty description="您还没有任何订单">
+        <el-empty description="您还没有任何订单，快去点餐吧！">
           <el-button type="primary" @click="$router.push('/menu')">去点餐</el-button>
         </el-empty>
       </template>
@@ -92,12 +123,24 @@ const orders = ref([])
 const activeTab = ref('all')
 
 const orderStatusMap = {
-  pending: '待处理',
-  processing: '处理中',
+  pending: '待支付',
+  processing: '备餐中',
   shipping: '配送中',
   completed: '已完成',
   cancelled: '已取消'
 }
+
+// Computed property to determine ElTag type based on order status
+const orderStatusTagType = computed(() => (status) => {
+  switch (status) {
+    case 'pending': return 'warning'
+    case 'processing': return 'primary'
+    case 'shipping': return 'success'
+    case 'completed': return 'info'
+    case 'cancelled': return 'danger'
+    default: return 'info'
+  }
+})
 
 const filteredOrders = computed(() => {
   if (activeTab.value === 'all') {
@@ -137,6 +180,16 @@ async function fetchOrders() {
   }
 }
 
+async function payOrder(orderId) {
+  ElMessage.info(`支付订单 ${orderId}... (此功能待实现)`)
+  // Implement actual payment logic here
+}
+
+async function reviewOrder(orderId) {
+  ElMessage.info(`评价订单 ${orderId}... (此功能待实现)`)
+  // Implement actual review logic here
+}
+
 async function cancelOrder(orderId) {
   ElMessageBox.confirm(
     '确定要取消此订单吗?'
@@ -155,9 +208,10 @@ async function cancelOrder(orderId) {
             Authorization: `Bearer ${userStore.token}`
           }
         }
-        await axios.put(`/api/orders/${orderId}/status`, { status: 'cancelled' }, config)
+        // Assuming an API endpoint for cancelling orders
+        await axios.put(`/api/orders/${orderId}/cancel`, {}, config)
         ElMessage.success('订单已取消')
-        fetchOrders()
+        fetchOrders() // Refresh orders after cancellation
       } catch (err) {
         ElMessage.error(err.response?.data?.message || '取消订单失败')
         console.error(err)
@@ -179,42 +233,86 @@ watch(activeTab, () => {
 onMounted(() => {
   if (userStore.isAuthenticated) {
     fetchOrders()
+  } else {
+    ElMessage.warning('请先登录查看订单')
+    router.push('/login')
   }
 })
 </script>
 
 <style scoped>
 .orders-page {
-  padding: 2rem 0;
+  padding: 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
 }
 
 .page-title {
-  font-size: 2rem;
-  color: var(--el-color-primary);
-  margin-bottom: 2rem;
+  font-size: 2.5rem;
+  color: var(--el-text-color-primary);
   text-align: center;
+  margin-bottom: 2.5rem;
+  position: relative;
+  padding-bottom: 0.5rem;
+}
+
+.page-title::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100px;
+  height: 4px;
+  background-color: var(--kfc-red);
+  border-radius: 2px;
+}
+
+.loading-state,
+.el-empty {
+  min-height: 400px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
 }
 
 .order-tabs {
   margin-bottom: 2rem;
-  --el-tabs-header-height: 50px;
+  --el-tabs-header-height: 55px; /* Slightly taller tabs */
+}
+
+.order-tabs .el-tabs__item {
+  font-size: 1.1rem;
+  font-weight: bold;
+  color: var(--el-text-color-regular);
+  padding: 0 20px;
+}
+
+.order-tabs .el-tabs__item.is-active {
+  color: var(--kfc-red); /* Active tab color */
+}
+
+.order-tabs .el-tabs__active-bar {
+  background-color: var(--kfc-red);
 }
 
 .order-list {
-  display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); /* Responsive grid for orders */
+  gap: 2rem;
 }
 
 .order-card {
-  border-radius: 8px;
-  box-shadow: var(--el-box-shadow-light);
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
   transition: all 0.3s ease;
 }
 
 .order-card:hover {
-  transform: translateY(-3px);
-  box-shadow: var(--el-box-shadow-hover);
+  transform: translateY(-5px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
 }
 
 .order-header {
@@ -222,118 +320,184 @@ onMounted(() => {
   justify-content: space-between;
   align-items: center;
   font-size: 1rem;
-  color: #666;
+  color: var(--el-text-color-secondary);
+  padding: 0.5rem 0;
+  border-bottom: 1px solid var(--el-border-color-lighter);
 }
 
 .order-id {
   font-weight: bold;
+  color: var(--el-text-color-primary);
+  font-size: 1.1rem;
 }
 
-.order-status {
-  padding: 0.2em 0.6em;
-  border-radius: 4px;
+.order-status-tag {
+  font-size: 0.9rem;
   font-weight: bold;
-  color: white;
-}
-
-.order-status.pending {
-  background-color: var(--el-color-warning);
-}
-
-.order-status.processing {
-  background-color: var(--el-color-primary);
-}
-
-.order-status.shipping {
-  background-color: var(--el-color-success);
-}
-
-.order-status.completed {
-  background-color: var(--el-color-info);
-}
-
-.order-status.cancelled {
-  background-color: var(--el-color-danger);
 }
 
 .order-items {
-  margin-top: 1rem;
-  border-top: 1px solid #eee;
-  padding-top: 1rem;
+  padding: 1rem 0;
 }
 
 .order-item {
   display: flex;
   align-items: center;
   gap: 1rem;
-  margin-bottom: 0.8rem;
+  margin-bottom: 1rem;
+}
+
+.order-item:last-child {
+  margin-bottom: 0;
 }
 
 .item-image {
   width: 60px;
   height: 60px;
-  border-radius: 4px;
+  border-radius: 8px;
   overflow: hidden;
   flex-shrink: 0;
 }
 
-.image-placeholder {
+.item-image .el-image {
   width: 100%;
   height: 100%;
+  object-fit: cover;
+}
+
+.image-placeholder {
   display: flex;
   justify-content: center;
   align-items: center;
-  background-color: #f0f0f0;
-  color: #ccc;
+  width: 100%;
+  height: 100%;
+  background-color: var(--el-fill-color-light);
+  color: var(--el-text-color-secondary);
   font-size: 1.5rem;
 }
 
 .item-details {
   flex-grow: 1;
   display: flex;
-  justify-content: space-between;
-  align-items: center;
+  flex-direction: column;
 }
 
 .item-name {
+  font-size: 1rem;
   font-weight: bold;
-  color: var(--el-color-primary);
+  color: var(--el-text-color-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .item-quantity {
-  color: #999;
-  font-size: 0.9em;
+  font-size: 0.9rem;
+  color: var(--el-text-color-secondary);
+  margin-top: 0.2rem;
 }
 
 .item-price {
+  font-size: 1rem;
   font-weight: bold;
   color: var(--kfc-red);
+  margin-top: 0.2rem;
+}
+
+.order-divider {
+  margin: 0;
 }
 
 .order-footer {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-top: 1.5rem;
-  border-top: 1px solid #eee;
   padding-top: 1rem;
 }
 
+.order-total {
+  display: flex;
+  align-items: baseline;
+  gap: 5px;
+  font-size: 1.1rem;
+  color: var(--el-text-color-regular);
+}
+
+.order-total .label {
+  font-weight: normal;
+}
+
 .order-total .price {
-  font-size: 1.5rem;
+  font-size: 1.6rem;
   font-weight: bold;
   color: var(--kfc-red);
-  margin-left: 0.5rem;
 }
 
-.loading-state {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 300px;
+.order-actions .el-button {
+  margin-left: 10px;
 }
 
-.el-empty {
-  margin-top: 3rem;
+.order-actions .el-button--primary {
+  background-color: var(--kfc-red);
+  border-color: var(--kfc-red);
+}
+
+.order-actions .el-button--primary:hover {
+  background-color: #e03f2a;
+  border-color: #e03f2a;
+}
+
+.order-actions .el-button--danger.is-plain {
+  color: var(--el-color-danger);
+  background: #fef0f0;
+  border-color: #fde2e2;
+}
+
+.order-actions .el-button--danger.is-plain:hover {
+  background-color: var(--el-color-danger);
+  color: white;
+  border-color: var(--el-color-danger);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .orders-page {
+    padding: 1rem;
+  }
+  .page-title {
+    font-size: 2rem;
+    margin-bottom: 2rem;
+  }
+  .order-tabs .el-tabs__item {
+    padding: 0 10px;
+    font-size: 1rem;
+  }
+  .order-list {
+    grid-template-columns: 1fr; /* Single column on small screens */
+    gap: 1.5rem;
+  }
+  .order-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+  .order-id {
+    font-size: 1rem;
+  }
+  .order-footer {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+  .order-actions {
+    width: 100%;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+  .order-actions .el-button {
+    flex: 1;
+    margin-left: 0;
+  }
 }
 </style> 
