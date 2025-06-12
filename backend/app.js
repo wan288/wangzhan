@@ -46,7 +46,7 @@ app.use((req, res, next) => {
 });
 
 // 静态文件服务
-// app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // 使用路由
 app.use('/api/auth', authRoutes);
