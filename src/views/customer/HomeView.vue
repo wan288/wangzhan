@@ -2,26 +2,28 @@
   <div class="home">
     <!-- Header Banner -->
     <div class="banner">
-      <el-carousel :interval="5000" arrow="always" indicator-position="outside">
-        <el-carousel-item v-for="banner in banners" :key="banner.id">
-          <div class="banner-content" :style="{ backgroundImage: `url(${banner.image})` }">
-            <div class="banner-overlay"></div>
-            <div class="banner-text">
-              <h2 class="animate__animated animate__fadeInDown">{{ banner.title }}</h2>
-              <p class="animate__animated animate__fadeInUp">{{ banner.description }}</p>
-              <el-button
-                type="primary"
-                size="large"
-                class="order-btn animate__animated animate__fadeInUp"
-                @click="$router.push('/menu')"
-              >
-                立即订购
-                <el-icon class="el-icon--right"><ArrowRight /></el-icon>
-              </el-button>
+      <div class="carousel-wrapper">
+        <el-carousel :interval="5000" arrow="always" indicator-position="outside">
+          <el-carousel-item v-for="banner in banners" :key="banner.id">
+            <div class="banner-content" :style="{ backgroundImage: `url(${banner.image})` }">
+              <div class="banner-overlay"></div>
+              <div class="banner-text">
+                <h2 class="animate__animated animate__fadeInDown">{{ banner.title }}</h2>
+                <p class="animate__animated animate__fadeInUp">{{ banner.description }}</p>
+                <el-button
+                  type="primary"
+                  size="large"
+                  class="order-btn animate__animated animate__fadeInUp"
+                  @click="$router.push('/menu')"
+                >
+                  立即订购
+                  <el-icon class="el-icon--right"><ArrowRight /></el-icon>
+                </el-button>
+              </div>
             </div>
-          </div>
-        </el-carousel-item>
-      </el-carousel>
+          </el-carousel-item>
+        </el-carousel>
+      </div>
     </div>
 
     <!-- Quick Actions -->
@@ -232,16 +234,17 @@ function addToCart(item) {
 }
 
 .banner {
-  flex: 1;
   margin-bottom: 2rem;
-  width: calc(100vw + 2px); /* Slightly increased width to cover potential sub-pixel gaps */
-  position: relative;
-  left: 50%;
-  transform: translateX(-50%);
+}
+
+.carousel-wrapper {
+  max-width: 1400px; /* Increased max-width for a larger carousel */
+  width: 100%;
+  margin: 0 auto; /* Center the carousel */
 }
 
 .el-carousel {
-  height: 100%;
+  height: 600px; /* Set a fixed height for the carousel */
 }
 
 .el-carousel-item {
@@ -249,292 +252,346 @@ function addToCart(item) {
 }
 
 .banner-content {
-  height: 100%;
+  height: 100%; /* Ensure banner content fills the carousel item height */
   background-size: cover;
   background-position: center;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 0; /* Ensured padding is 0 */
   position: relative;
-  overflow: hidden;
+  text-align: center;
+  color: white;
 }
 
 .banner-overlay {
   position: absolute;
   top: 0;
   left: 0;
-  right: 0;
-  bottom: 0;
-  background: linear-gradient(to right, rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.4));
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.4);
 }
 
 .banner-text {
   position: relative;
-  color: white;
-  max-width: none; /* Removed max-width to allow full expansion */
-  width: 100%; /* Take full width of its parent */
   z-index: 1;
-  padding: 2rem 0; /* Only vertical padding, no horizontal */
-  text-align: center;
-  margin: 0 auto;
+  padding: 20px;
+  max-width: 800px;
 }
 
 .banner-text h2 {
-  font-size: 3.8rem;
+  font-size: 3.5rem;
   margin-bottom: 1rem;
-  font-weight: 700;
-  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+  font-weight: bold;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
 }
 
 .banner-text p {
-  font-size: 1.4rem;
+  font-size: 1.5rem;
   margin-bottom: 2rem;
-  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+  line-height: 1.6;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
 }
 
 .order-btn {
-  padding: 1rem 2.8rem;
-  font-size: 1.3rem;
-  border-radius: 30px;
-  transition: transform 0.3s;
+  font-size: 1.2rem;
+  padding: 15px 30px;
+  border-radius: 50px;
+  transition: all 0.3s ease;
+  background-color: var(--el-color-primary);
+  border-color: var(--el-color-primary);
 }
 
 .order-btn:hover {
-  transform: translateY(-2px);
+  transform: translateY(-3px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
 
+/* Quick Actions */
 .quick-actions {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 1rem;
-  margin: -1rem auto 2rem;
-  padding: 1rem;
-  background: white;
-  border-radius: 10px;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+  display: flex;
+  justify-content: space-around;
+  background-color: #fff;
+  padding: 1.5rem 0;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  margin-top: -4rem; /* Overlap with banner */
   position: relative;
-  z-index: 10;
+  z-index: 2;
+  flex-wrap: wrap;
 }
 
 .action-item {
   display: flex;
+  flex-direction: column;
   align-items: center;
   gap: 0.5rem;
-  padding: 1rem;
+  color: #333;
+  font-weight: bold;
   cursor: pointer;
+  padding: 1rem;
   border-radius: 8px;
-  transition: all 0.3s;
+  transition: all 0.3s ease;
   position: relative;
 }
 
 .action-item:hover {
-  background-color: var(--el-color-primary-light-9);
-  transform: translateY(-2px);
+  background-color: #f0f2f5;
+  color: var(--el-color-primary);
+  transform: translateY(-5px);
 }
 
 .action-item .el-icon {
-  font-size: 1.5rem;
+  font-size: 2.5rem;
   color: var(--el-color-primary);
 }
 
 .cart-badge {
   position: absolute;
-  top: 0;
-  right: 0;
+  top: 5px;
+  right: 5px;
 }
 
+/* Section Header Styles */
 .section-header {
   text-align: center;
-  margin-bottom: 2rem;
+  margin-bottom: 3rem;
+  margin-top: 4rem;
 }
 
 .section-title {
-  font-size: 2.5rem;
-  color: var(--el-color-primary);
+  font-size: 2.8rem;
+  color: #333;
   margin-bottom: 0.5rem;
-  font-weight: 700;
+  font-weight: bold;
+  position: relative;
+  display: inline-block;
+}
+
+.section-title::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  bottom: -10px;
+  transform: translateX(-50%);
+  width: 60px;
+  height: 4px;
+  background-color: var(--el-color-primary);
+  border-radius: 2px;
 }
 
 .section-subtitle {
-  font-size: 1.1rem;
+  font-size: 1.2rem;
   color: #666;
-  margin-bottom: 2rem;
+}
+
+/* Featured Categories */
+.featured-categories {
+  margin-bottom: 4rem;
 }
 
 .category-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
   gap: 2rem;
-  margin-bottom: 4rem;
 }
 
 .category-card {
-  cursor: pointer;
-  transition: all 0.3s;
-  border: none;
-  border-radius: 15px;
+  border-radius: 12px;
   overflow: hidden;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  transition: all 0.3s ease;
+  cursor: pointer;
 }
 
 .category-card:hover {
   transform: translateY(-5px);
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
 }
 
 .category-image-wrapper {
   position: relative;
+  width: 100%;
+  height: 200px;
   overflow: hidden;
-  padding-top: 75%;
 }
 
 .category-image {
-  position: absolute;
-  top: 0;
-  left: 0;
   width: 100%;
   height: 100%;
   object-fit: cover;
-  transition: transform 0.3s;
+  transition: transform 0.3s ease;
+}
+
+.category-card:hover .category-image {
+  transform: scale(1.05);
 }
 
 .category-overlay {
   position: absolute;
   top: 0;
   left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.5);
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
   display: flex;
   align-items: center;
   justify-content: center;
+  color: white;
+  font-size: 1.2rem;
+  font-weight: bold;
   opacity: 0;
-  transition: opacity 0.3s;
+  transition: opacity 0.3s ease;
 }
 
 .category-card:hover .category-overlay {
   opacity: 1;
 }
 
-.category-card:hover .category-image {
-  transform: scale(1.1);
-}
-
 .category-card h3 {
   padding: 1rem;
-  margin: 0;
   text-align: center;
-  font-size: 1.2rem;
   color: #333;
+  font-size: 1.4rem;
+}
+
+/* Featured Items */
+.featured-items {
+  margin-bottom: 4rem;
 }
 
 .items-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
   gap: 2rem;
-  margin-bottom: 4rem;
 }
 
 .item-card {
-  transition: all 0.3s;
-  border: none;
-  border-radius: 15px;
+  border-radius: 12px;
   overflow: hidden;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  transition: all 0.3s ease;
 }
 
 .item-card:hover {
   transform: translateY(-5px);
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
 }
 
 .item-image-wrapper {
   position: relative;
+  width: 100%;
+  height: 220px;
   overflow: hidden;
-  padding-top: 75%;
 }
 
 .item-image {
-  position: absolute;
-  top: 0;
-  left: 0;
   width: 100%;
   height: 100%;
   object-fit: cover;
-  transition: transform 0.3s;
+  transition: transform 0.3s ease;
+}
+
+.item-card:hover .item-image {
+  transform: scale(1.05);
 }
 
 .item-overlay {
   position: absolute;
   top: 0;
   left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.5);
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.6);
   display: flex;
   align-items: center;
   justify-content: center;
   opacity: 0;
-  transition: opacity 0.3s;
+  transition: opacity 0.3s ease;
 }
 
 .item-card:hover .item-overlay {
   opacity: 1;
 }
 
-.item-card:hover .item-image {
-  transform: scale(1.1);
+.item-overlay .el-button {
+  font-size: 1.1rem;
+  padding: 12px 25px;
+  border-radius: 30px;
 }
 
 .item-info {
-  padding: 1.5rem;
+  padding: 1rem;
 }
 
 .item-info h3 {
-  margin: 0 0 0.5rem;
-  font-size: 1.3rem;
+  font-size: 1.5rem;
   color: #333;
+  margin-bottom: 0.5rem;
+  font-weight: bold;
 }
 
 .item-description {
+  font-size: 0.9rem;
   color: #666;
   margin-bottom: 1rem;
-  line-height: 1.5;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .item-price {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  margin-top: 1rem;
 }
 
-.price {
-  font-size: 1.4rem;
-  color: var(--el-color-danger);
+.item-price .price {
+  font-size: 1.6rem;
+  color: var(--el-color-primary);
   font-weight: bold;
+}
+
+/* Special Offers */
+.special-offers {
+  margin-bottom: 4rem;
 }
 
 .offers-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
   gap: 2rem;
-  margin-bottom: 4rem;
 }
 
 .offer-card {
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  transition: all 0.3s ease;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
   text-align: center;
-  padding: 2rem;
-  transition: all 0.3s;
-  border: none;
-  border-radius: 15px;
 }
 
 .offer-card.highlighted {
-  background: linear-gradient(135deg, var(--el-color-primary-light-9), var(--el-color-primary-light-7));
+  border: 3px solid var(--el-color-primary);
+  box-shadow: 0 6px 16px rgba(var(--el-color-primary-rgb), 0.3);
 }
 
 .offer-card:hover {
   transform: translateY(-5px);
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+}
+
+.offer-content {
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 .offer-icon {
@@ -542,44 +599,59 @@ function addToCart(item) {
   margin-bottom: 1rem;
 }
 
-.offer-content h3 {
-  font-size: 1.4rem;
+.offer-card h3 {
+  font-size: 1.8rem;
   color: #333;
-  margin-bottom: 1rem;
+  margin-bottom: 0.8rem;
+  font-weight: bold;
 }
 
-.offer-content p {
+.offer-card p {
+  font-size: 1rem;
   color: #666;
   margin-bottom: 1.5rem;
-  line-height: 1.5;
+  line-height: 1.6;
 }
 
 .offer-btn {
-  border-radius: 20px;
-  padding: 0.8rem 1.5rem;
+  font-size: 1rem;
+  padding: 10px 20px;
+  border-radius: 25px;
+  background-color: var(--el-color-primary);
+  border-color: var(--el-color-primary);
 }
 
+.offer-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+/* Responsive Adjustments */
 @media (max-width: 768px) {
   .banner-text h2 {
-    font-size: 2rem;
+    font-size: 2.5rem;
   }
 
   .banner-text p {
-    font-size: 1rem;
-  }
-
-  .section-title {
-    font-size: 2rem;
+    font-size: 1.2rem;
   }
 
   .quick-actions {
-    grid-template-columns: repeat(2, 1fr);
+    flex-direction: column;
+    margin-top: -2rem;
   }
 
-  .category-grid,
-  .items-grid,
-  .offers-grid {
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  .action-item {
+    width: 100%;
+    border-bottom: 1px solid #eee;
+  }
+
+  .action-item:last-child {
+    border-bottom: none;
+  }
+
+  .category-grid, .items-grid, .offers-grid {
+    grid-template-columns: 1fr;
   }
 }
 

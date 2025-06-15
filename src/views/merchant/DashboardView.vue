@@ -170,7 +170,7 @@ onMounted(() => {
             <template #header>
               <div class="card-header">销售趋势</div>
             </template>
-            <div id="revenueChart" style="width: 100%; height: 100%;"></div>
+            <div id="revenueChart" style="width: 100%; height: 400px;"></div>
           </el-card>
         </el-col>
         <el-col :span="12">
@@ -178,7 +178,7 @@ onMounted(() => {
             <template #header>
               <div class="card-header">菜品销售排行</div>
             </template>
-            <div id="dishSalesChart" style="width: 100%; height: 100%;"></div>
+            <div id="dishSalesChart" style="width: 100%; height: 400px;"></div>
           </el-card>
         </el-col>
       </el-row>
@@ -192,7 +192,7 @@ onMounted(() => {
   display: flex;
   flex-direction: column;
   padding: 2rem; /* Re-add padding here for page content */
-  box-sizing: border-box; /* Include padding in element's total width and height */
+  box-sizing: border-box; /* Include padding in element\'s total width and height */
   /* background-color: lightblue; */ /* DEBUG: Remove background for visualization */
 }
 
@@ -248,47 +248,20 @@ onMounted(() => {
 .chart-row {
   flex: 1; /* Make chart row fill remaining space */
   display: flex; /* Make it a flex container to manage inner el-cols */
-  flex-direction: row; /* Default for el-row */
-  margin-bottom: 20px;
-  height: 100%; /* Ensure this row takes full available height */
-  /* background-color: orange; */ /* DEBUG: Remove background for visualization */
-}
-
-.chart-row .el-col {
-  height: 100%; /* Ensure el-col fills height of chart-row */
-  display: flex;
-  flex-direction: column;
-  /* background-color: lightcoral; */ /* DEBUG: Remove background for visualization */
 }
 
 .chart-card {
-  height: 100%; /* Ensure chart card fills its column */
-  display: flex;
-  flex-direction: column;
-  min-height: 400px; /* 为图表卡片设置一个最小高度 */
-  /* background-color: lightgoldenrodyellow; */ /* DEBUG: Remove background for visualization */
+  height: 400px; /* 使用固定高度替代 min-height */
 }
 
-.chart-card :deep(.el-card__header) {
-  border-bottom: none;
-  padding-bottom: 0;
-}
-
-.chart-card :deep(.el-card__body) {
-  flex: 1; /* Ensure chart body fills remaining space */
-  padding-top: 0;
-  display: flex;
-  flex-direction: column;
-  height: 100%; /* Explicitly ensure card body fills height */
-  /* background-color: lightsalmon; */ /* DEBUG: Remove background for visualization */
-  overflow: hidden; /* Add overflow hidden to prevent internal content overflow from affecting parent height */
+.chart-card .el-card__body {
+  height: calc(100% - 55px); /* 减去 header 的高度 */
+  padding: 20px;
 }
 
 #revenueChart,
 #dishSalesChart {
-  flex: 1; /* Ensure charts fill their container */
   width: 100%;
-  height: 100%; /* Re-added: Ensure chart div has explicit height */
-  /* background-color: gray; */ /* DEBUG: Remove background for visualization */
+  height: 100%;
 }
 </style>
