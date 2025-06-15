@@ -202,11 +202,13 @@ onMounted(() => {
 
 <style scoped lang="scss">
 .dashboard-container {
-  padding: 20px;
+  /* padding: 20px; */ /* 移除 padding，由父级 el-main 处理 */
   background-color: #f0f2f5;
+  width: 100%; /* 确保仪表盘容器占据全部宽度 */
 
   .data-cards {
     margin-bottom: 20px;
+    width: 100%; /* 确保数据卡片行占据全部宽度 */
 
     .card-item {
       border-radius: 8px;
@@ -235,6 +237,7 @@ onMounted(() => {
 
   .chart-and-hot-dishes {
     margin-bottom: 20px;
+    width: 100%; /* 确保图表和热门菜品行占据全部宽度 */
 
     .chart-card, .hot-dishes-card {
       border-radius: 8px;
@@ -249,6 +252,7 @@ onMounted(() => {
   }
 
   .recent-orders-card {
+    width: 100%; /* 确保最新订单卡片占据全部宽度 */
     border-radius: 8px;
     .card-header {
       display: flex;

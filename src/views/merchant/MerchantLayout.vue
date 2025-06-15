@@ -1,6 +1,6 @@
 <template>
   <div class="merchant-layout">
-    <el-container>
+    <div class="layout-wrapper">
       <!-- 侧边栏导航 -->
       <el-aside width="200px" class="sidebar">
         <div class="logo-section">
@@ -39,7 +39,7 @@
         </el-menu>
       </el-aside>
 
-      <el-container>
+      <el-container style="flex: 1; flex-direction: column;">
         <!-- 顶部导航栏 -->
         <el-header class="merchant-header">
           <div class="header-left">
@@ -70,16 +70,18 @@
 
         <!-- 主要内容区域 -->
         <el-main class="merchant-main">
-          <div class="router-view-wrapper">
-            <router-view v-slot="{ Component }">
-              <transition name="fade" mode="out-in">
-                <component :is="Component" />
-              </transition>
-            </router-view>
+          <div class="content-wrapper">
+            <div class="router-view-wrapper">
+              <router-view v-slot="{ Component }">
+                <transition name="fade" mode="out-in">
+                  <component :is="Component" />
+                </transition>
+              </router-view>
+            </div>
           </div>
         </el-main>
       </el-container>
-    </el-container>
+    </div>
   </div>
 </template>
 
@@ -121,20 +123,36 @@ function logout() {
 </script>
 
 <style scoped>
+/* Removed Universal border for debugging */
+/*
+* {
+  border: 1px solid red !important;
+}
+*/
+
 .merchant-layout {
   height: 100vh;
+  width: 100%; /* 确保它占据整个视口宽度 */
   display: flex;
+  /* background-color: orange; */ /* DEBUG: 临时背景色 */
 }
 
-.merchant-layout .el-container {
-  height: 100%; /* Ensure the main container fills the viewport height */
+.layout-wrapper {
+  flex: 1; /* 使其占据 .merchant-layout 中所有可用空间 */
+  display: flex;
+  flex-direction: row; /* 强制水平布局 */
+  /* 移除 width: 100%; 和 height: 100%; 因为 flex: 1 会处理 */
+  /* background-color: orange; */ /* DEBUG: 临时背景色 */
 }
+
+/* Removed .merchant-layout .el-container as it's no longer the outer container */
 
 .sidebar {
   background-color: #2c3e50;
   color: white;
   padding: 1rem;
   box-shadow: 2px 0 6px rgba(0, 0, 0, 0.1);
+  overflow: hidden; /* 确保内容不会溢出 */
 }
 
 .logo-section {
@@ -218,21 +236,42 @@ function logout() {
   flex: 1;
   display: flex;
   flex-direction: column;
-  background-color: #f0f2f5;
+  /* background-color: purple; */ /* DEBUG: 临时背景色 */
+  width: 100%;
+  overflow: auto; /* 允许内容滚动 */
+}
+
+.merchant-main :deep(.el-main) {
+  padding: 0 !important;
+  width: 100% !important;
+  flex-grow: 1;
+}
+
+.content-wrapper {
+  flex: 1;
+  padding: 20px;
+  box-sizing: border-box;
+  width: 100%;
+  /* background-color: yellow; */ /* DEBUG: 临时背景色 */
 }
 
 .router-view-wrapper {
-  flex: 1; /* Ensure this wrapper fills the available space in el-main */
+  flex: 1;
   display: flex;
-  flex-direction: column; /* Stack components vertically if needed */
-  height: 100%; /* Explicitly set height to 100% of its flex parent */
+  flex-direction: column;
+  height: 100%;
+  width: 100%;
 }
 
-/* 确保 router-view 及其组件能够填充空间 */
 .merchant-main :deep(.router-view-container) {
   flex: 1;
   display: flex;
   flex-direction: column;
+}
+
+/* 确保 el-main 内容区域没有 max-width 限制 */
+.merchant-main :deep(.el-main__body) {
+  max-width: none !important;
 }
 
 /* Transitions */

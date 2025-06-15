@@ -3,8 +3,8 @@ import { ElConfigProvider } from 'element-plus'
 </script>
 
 <template>
-  <el-config-provider>
-    <router-view />
+  <el-config-provider style="flex: 1; display: flex; flex-direction: column; width: 100% !important; height: 100% !important;">
+    <router-view style="flex: 1; width: 100%;" />
   </el-config-provider>
 </template>
 
@@ -22,7 +22,11 @@ html, body, #app {
   width: 100%;
   margin: 0;
   padding: 0;
-  overflow: hidden; /* Prevent body scrolling if layout is full height */
+  display: flex; /* Make them flex containers */
+  flex-direction: column; /* Stack content vertically */
+  min-width: 100vw; /* Ensure it takes full viewport width */
+  min-height: 100vh; /* Ensure it takes full viewport height */
+  /* overflow: hidden; */ /* Prevent body scrolling if layout is full height */
 }
 
 * {
@@ -40,9 +44,5 @@ body {
   background-color: var(--background-color);
 }
 
-.container {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 0 20px;
-}
+/* Removed .container as it's not used in merchant layout and might cause max-width issues */
 </style>

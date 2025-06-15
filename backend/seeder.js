@@ -1,19 +1,19 @@
 const path = require('path');
-// const dotenv = require('dotenv'); // Removed temporarily for debug
+const dotenv = require('dotenv'); // Removed temporarily for debug
 const mongoose = require('mongoose');
 const Category = require('./models/Category');
 const Dish = require('./models/Dish');
 const User = require('./models/User');
 const Order = require('./models/Order'); // Import Order model
 const connectDB = require('./config/db');
-// const bcrypt = require('bcryptjs'); // Import bcryptjs
+const bcrypt = require('bcryptjs'); // Import bcryptjs
 
-// dotenv.config({ path: path.resolve(__dirname, '../.env') }); // Removed temporarily for debug
-const MONGO_URI = 'mongodb://127.0.0.1:27017/ordering_system'; // Temporarily hardcoded for debug
+dotenv.config({ path: path.resolve(__dirname, '.env') }); // Load .env from backend/ directory
+const MONGO_URI = process.env.MONGO_URI; // Use MONGO_URI from .env
 
-console.log('[Seeder] Using hardcoded MONGO_URI:', MONGO_URI); // DEBUG
+console.log('[Seeder] Using MONGO_URI from .env:', MONGO_URI); // DEBUG
 
-connectDB(MONGO_URI); // Pass hardcoded URI to connectDB
+connectDB(MONGO_URI); // Pass MONGO_URI to connectDB
 
 const seedData = async () => {
   try {
@@ -57,12 +57,10 @@ const seedData = async () => {
     // 确保管理员用户存在，密码为 123456
     const adminUserExists = await User.findOne({ username: 'admin' });
     if (!adminUserExists) {
-      // const salt = await bcrypt.genSalt(10);
-      // const hashedPassword = await bcrypt.hash('123456', salt);
       await User.create({
         username: 'admin',
         email: 'admin@example.com',
-        password: '123456',
+        password: '123456', // 直接传递明文密码，让模型钩子处理哈希
         role: 'admin',
       });
       console.log('Admin user seeded!');
@@ -71,12 +69,10 @@ const seedData = async () => {
     // 创建一些模拟用户
     const customerUserExists = await User.findOne({ username: 'customer' });
     if (!customerUserExists) {
-      // const salt = await bcrypt.genSalt(10);
-      // const hashedPassword = await bcrypt.hash('password123', salt);
       await User.create({
         username: 'customer',
         email: 'customer@example.com',
-        password: 'password123',
+        password: 'password123', // 直接传递明文密码，让模型钩子处理哈希
         role: 'customer',
       });
       console.log('Customer user seeded!');
@@ -92,15 +88,18 @@ const seedData = async () => {
       {
         user: (await User.findOne({ username: 'customer' }))._id,
         items: [
-          { dish: dish1._id, name: dish1.name, price: dish1.price, quantity: 1 },
-          { dish: dish3._id, name: dish3.name, price: dish3.price, quantity: 2 }, 
+          { dish: dish1._id, name: dish1.name, price: dish1.price, quantity: 1, image: dish1.image },
+          { dish: dish3._id, name: dish3.name, price: dish3.price, quantity: 2, image: dish3.image },
         ],
         totalAmount: dish1.price * 1 + dish3.price * 2,
         deliveryInfo: {
           name: '张三',
           phone: '13812345678',
           address: '北京市朝阳区望京SOHO',
-          notes: '尽快送达'
+          notes: '尽快送达',
+          city: '北京',
+          postalCode: '100000',
+          country: '中国'
         },
         status: 'completed',
         paymentStatus: 'paid',
@@ -110,15 +109,18 @@ const seedData = async () => {
       {
         user: (await User.findOne({ username: 'customer' }))._id,
         items: [
-          { dish: dish2._id, name: dish2.name, price: dish2.price, quantity: 1 },
-          { dish: dish3._id, name: dish3.name, price: dish3.price, quantity: 2 },
+          { dish: dish2._id, name: dish2.name, price: dish2.price, quantity: 1, image: dish2.image },
+          { dish: dish3._id, name: dish3.name, price: dish3.price, quantity: 2, image: dish3.image },
         ],
         totalAmount: dish2.price * 1 + dish3.price * 2,
         deliveryInfo: {
           name: '李四',
           phone: '13987654321',
           address: '上海市浦东新区陆家嘴',
-          notes: '请勿打扰'
+          notes: '请勿打扰',
+          city: '上海',
+          postalCode: '200000',
+          country: '中国'
         },
         status: 'completed',
         paymentStatus: 'paid',
@@ -128,14 +130,17 @@ const seedData = async () => {
       {
         user: (await User.findOne({ username: 'customer' }))._id,
         items: [
-          { dish: dish1._id, name: dish1.name, price: dish1.price, quantity: 2 },
+          { dish: dish1._id, name: dish1.name, price: dish1.price, quantity: 2, image: dish1.image },
         ],
         totalAmount: dish1.price * 2,
         deliveryInfo: {
           name: '王五',
           phone: '13700001111',
           address: '广州市天河区珠江新城',
-          notes: '无'
+          notes: '无',
+          city: '广州',
+          postalCode: '510000',
+          country: '中国'
         },
         status: 'pending',
         paymentStatus: 'pending',

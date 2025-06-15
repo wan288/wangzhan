@@ -54,19 +54,6 @@
         </el-card>
       </el-col>
     </el-row>
-
-    <el-row :gutter="20" class="chart-row">
-      <el-col :span="24">
-        <el-card class="chart-card">
-          <template #header>
-            <div class="card-header">
-              <span>订单状态分布</span>
-            </div>
-          </template>
-          <div id="orderStatusChart" style="height: 300px;"></div>
-        </el-card>
-      </el-col>
-    </el-row>
   </div>
 </template>
 
@@ -83,7 +70,6 @@ const analyticsData = ref({
 
 const monthlySalesChart = ref(null)
 const popularDishesChart = ref(null)
-const orderStatusChart = ref(null)
 
 async function fetchAnalyticsData() {
   // TODO: 替换为实际的 API 调用
@@ -112,16 +98,8 @@ async function fetchAnalyticsData() {
     { value: 100, name: '新奥尔良烤翅' }
   ]
 
-  const orderStatus = [
-    { value: 600, name: '已完成' },
-    { value: 300, name: '待处理' },
-    { value: 200, name: '配送中' },
-    { value: 100, name: '已取消' }
-  ]
-
   initMonthlySalesChart(monthlySales)
   initPopularDishesChart(popularDishes)
-  initOrderStatusChart(orderStatus)
 }
 
 function initMonthlySalesChart(data) {
@@ -187,47 +165,11 @@ function initPopularDishesChart(data) {
   }
 }
 
-function initOrderStatusChart(data) {
-  const chartDom = document.getElementById('orderStatusChart')
-  if (chartDom) {
-    orderStatusChart.value = echarts.init(chartDom)
-    const option = {
-      tooltip: {
-        trigger: 'item',
-        formatter: '{a} <br/>{b} : {c} ({d}%)'
-      },
-      legend: {
-        orient: 'vertical',
-        left: 'left',
-        data: data.map(item => item.name)
-      },
-      series: [
-        {
-          name: '订单状态',
-          type: 'pie',
-          radius: '50%',
-          center: ['50%', '60%'],
-          data: data,
-          emphasis: {
-            itemStyle: {
-              shadowBlur: 10,
-              shadowOffsetX: 0,
-              shadowColor: 'rgba(0, 0, 0, 0.5)'
-            }
-          }
-        }
-      ]
-    }
-    orderStatusChart.value.setOption(option)
-  }
-}
-
 onMounted(() => {
   fetchAnalyticsData()
   window.addEventListener('resize', () => {
     monthlySalesChart.value?.resize()
     popularDishesChart.value?.resize()
-    orderStatusChart.value?.resize()
   })
 })
 </script>
@@ -303,8 +245,7 @@ onMounted(() => {
 }
 
 #monthlySalesChart,
-#popularDishesChart,
-#orderStatusChart {
+#popularDishesChart {
   flex: 1; /* Ensure charts fill their container */
   width: 100%;
   height: 100%;

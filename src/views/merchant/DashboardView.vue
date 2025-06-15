@@ -167,17 +167,11 @@ onMounted(() => {
       <el-row :gutter="20" class="chart-row">
         <el-col :span="12">
           <el-card class="chart-card">
-            <template #header>
-              <div class="card-header">销售趋势</div>
-            </template>
             <div id="revenueChart" style="width: 100%; height: 400px;"></div>
           </el-card>
         </el-col>
         <el-col :span="12">
           <el-card class="chart-card">
-            <template #header>
-              <div class="card-header">菜品销售排行</div>
-            </template>
             <div id="dishSalesChart" style="width: 100%; height: 400px;"></div>
           </el-card>
         </el-col>
@@ -188,12 +182,12 @@ onMounted(() => {
 
 <style>
 .dashboard-page {
-  flex: 1; /* Make it fill available space in column */
+  flex: 1;
   display: flex;
   flex-direction: column;
-  padding: 2rem; /* Re-add padding here for page content */
-  box-sizing: border-box; /* Include padding in element\'s total width and height */
-  /* background-color: lightblue; */ /* DEBUG: Remove background for visualization */
+  /* padding: 0 10px; */
+  box-sizing: border-box;
+  /* background-color: green; */
 }
 
 .page-title {
@@ -204,6 +198,7 @@ onMounted(() => {
 
 .card-row {
   margin-bottom: 20px;
+  width: 100%;
 }
 
 .dashboard-card {
@@ -212,7 +207,7 @@ onMounted(() => {
   padding: 1.5rem;
   height: 120px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
-  /* background-color: lightgreen; */ /* DEBUG: Remove background for visualization */
+  width: 100%;
 }
 
 .card-icon {
@@ -239,24 +234,19 @@ onMounted(() => {
 }
 
 .charts-wrapper {
-  flex: 1; /* Make this wrapper fill remaining vertical space */
+  flex: 1;
   display: flex;
-  flex-direction: column; /* Charts rows will stack vertically */
-  /* background-color: pink; */ /* DEBUG: Remove background for visualization */
+  flex-direction: column;
 }
 
 .chart-row {
-  flex: 1; /* Make chart row fill remaining space */
-  display: flex; /* Make it a flex container to manage inner el-cols */
+  flex: 1;
+  display: flex;
 }
 
 .chart-card {
-  height: 400px; /* 使用固定高度替代 min-height */
-}
-
-.chart-card .el-card__body {
-  height: calc(100% - 55px); /* 减去 header 的高度 */
-  padding: 20px;
+  height: 400px;
+  width: 100%;
 }
 
 #revenueChart,
